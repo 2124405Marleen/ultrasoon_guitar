@@ -44,9 +44,22 @@ int rest_count = 100;//Variable to increase Rest lenght
 
 //Init melodies
 
-int medoly_one[] = {frequency_c, frequency_b, frequency_g, frequency_c, frequency_b, 
+//Random melodie
+int melody_one[] = {frequency_c, frequency_b, frequency_g, frequency_c, frequency_b, 
   frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
 int beats_one[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+
+int melody_two[] = {frequency_g, frequency_b, frequency_g, frequency_c, frequency_b, 
+  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
+int beats_two[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+
+int melody_three[] = {frequency_a, frequency_b, frequency_g, frequency_c, frequency_b, 
+  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
+int beats_three[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+
+int melody_four[] = {frequency_f, frequency_b, frequency_g, frequency_c, frequency_b, 
+  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
+int beats_four[] = {16,16,16,8,8,16,32,16,16,16,8,8};
 
 void setup() {
   Serial.begin(9600);
@@ -170,7 +183,7 @@ void guitarGameTones(){
       }
 
   //Wait 100 ms before staring over so sound can play
-  delay(100);
+  delay(10000);
     
   }
 
@@ -182,17 +195,18 @@ void guitarGameMusic(){
 
 //Every 15 cm diffrent melody
      if (distance <=15) {
-       playMelody(medoly_one, beats_one);
+       playMelody(melody_one, beats_one);
       } 
-//     else if (distance <=30){
-//       playMelody(medoly_one, beats_one);
-//      }
-//     else if (distance <=45){
-//       playMelody(medoly_one, beats_one);
-//      }
-//     else if (distance <=60){
-//       playMelody(medoly_one, beats_one);
-//      }
+     else if (distance <=30){
+        playMelody(melody_two, beats_two);
+       
+      }
+     else if (distance <=45){
+       playMelody(melody_three, beats_three);
+      }
+     else if (distance <=60){
+       playMelody(melody_four, beats_four);
+      }
      else{
       //0Hz sound (Quiet)
         playTone(frequency_rest);
