@@ -39,46 +39,17 @@ void setup() {
   pinMode(trig_pin, OUTPUT);
   pinMode(headphone_pin, OUTPUT);
   
-  InitTimersSafe(); //initialize all timers except for 0, to save time keeping functions
+  InitTimersSafe();         //Not for time keeping funtions
   Serial.println("Setup complete");
 }
 
 void loop() {
-
-  calculatePing();
-  calculateDistance();
-  printDistance();
-
-//Different musical tone every 10 cm
-      if (distance <=10) {
-        playTone(frequency_c);
-      } 
-      else if (distance <=20){
-        playTone(frequency_d);
-      }
-      else if (distance <=30){
-        playTone(frequency_e);
-      }
-     else if (distance <=40){
-        playTone(frequency_f);
-      }
-      else if (distance <=50){
-        playTone(frequency_g);
-      }
-      else if (distance <=60){
-        playTone(frequency_a);
-      }
-     else{
-        playTone(0);
-      }
-  
-  delay(100);
-    
+guitarGameTones();
 }
 
 
-//Calculate total time a ping needs to go back and forth
-void calculatePing(){
+//Send pulse to test time ping needs to go back and forth
+void testPing(){
   digitalWrite(trig_pin, LOW);
   delayMicroseconds(2000);
   digitalWrite(trig_pin, HIGH);
@@ -108,3 +79,36 @@ void playTone(int32_t frequency){
       pwmWrite(headphone_pin, frequency);
       SetPinFrequency(headphone_pin, frequency);
 }
+
+void guitarGameTones(){
+  
+  testPing();
+  calculateDistance();
+  printDistance();
+
+//Different musical tone every 10 cm
+      if (distance <=10) {
+        playTone(frequency_c);
+      } 
+      else if (distance <=20){
+        playTone(frequency_d);
+      }
+      else if (distance <=30){
+        playTone(frequency_e);
+      }
+     else if (distance <=40){
+        playTone(frequency_f);
+      }
+      else if (distance <=50){
+        playTone(frequency_g);
+      }
+      else if (distance <=60){
+        playTone(frequency_a);
+      }
+     else{
+        playTone(0);
+      }
+  
+  delay(100);
+    
+  }
