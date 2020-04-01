@@ -17,6 +17,12 @@ Hardware:
 const int headphone_pin = 10; // headphone connected to PWM pin 10
 const int echo_pin = 2; //Sensor Echo connected to pin 2
 const int trig_pin = 4; //Sensor Trig connected to pin 4
+
+//Uncomment if button is connected
+//const int button_pin = 7;
+//int button_state = 0;
+
+//Initialize variable for distance calculate
 float distance_target; //distance between sensor and target
 float ping_time; //Time ping needs to go back and forth between target
 float speed_sound = 343.2; //Speed of sound in m/s
@@ -36,29 +42,50 @@ int32_t frequency_rest = 0;
 int current_tone = 0;
 int current_beat = 0;
 long play_duration = 0;
-long elapsed_time = 0;
+long played_time = 0;
 
 long tempo = 10000;//overal tempo
 int pause = 1000;//pause between notes
 int rest_count = 100;//Variable to increase Rest lenght
 
 //Init melodies
-int melody_one[] = {frequency_c, frequency_b, frequency_g, frequency_c, frequency_b, 
-  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
-int beats_one[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+int melody_one[] = {frequency_c, frequency_b, frequency_g, 
+                    frequency_c, frequency_b, frequency_e, 
+                    frequency_rest, frequency_c, frequency_c, 
+                    frequency_g, frequency_a, frequency_c};
+int beats_one[] = {16,16,16,
+                  8,8,16,
+                  32,16,16,
+                  16,8,8};
 
 //repeat with diffrent start note
-int melody_two[] = {frequency_g, frequency_b, frequency_g, frequency_c, frequency_b, 
-  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
-int beats_two[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+int melody_two[] = {frequency_g, frequency_b, frequency_g, 
+                    frequency_c, frequency_b, frequency_e, 
+                    frequency_rest, frequency_c, frequency_c, 
+                    frequency_g, frequency_a, frequency_c};
+int beats_two[] = {4, 4, 4, 
+                    4, 4, 4, 
+                    4, 4, 4,
+                    4, 4, 4};
 
-int melody_three[] = {frequency_a, frequency_b, frequency_g, frequency_c, frequency_b, 
-  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
-int beats_three[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+int melody_three[] = {frequency_a, frequency_b, frequency_g, 
+                      frequency_c, frequency_b, frequency_e, 
+                      frequency_rest, frequency_c, frequency_c, 
+                      frequency_g, frequency_a, frequency_c};
+int beats_three[] = {16,16,16,
+                      8,8,16,
+                      32,16,16,
+                      16,8,8};
 
-int melody_four[] = {frequency_f, frequency_b, frequency_g, frequency_c, frequency_b, 
-  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
-int beats_four[] = {16,16,16,8,8,16,32,16,16,16,8,8};
+int melody_four[] = {frequency_f, frequency_b, frequency_g, 
+                      frequency_f, frequency_b, frequency_g,
+                      frequency_f, frequency_b, frequency_g,
+                      frequency_f, frequency_b, frequency_g,};
+int beats_four[] = {8, 8, 8,
+                    8, 8, 8, 
+                    8, 8, 8,
+                    8, 8, 8};
+
 
 void setup() {
   Serial.begin(9600);
@@ -70,6 +97,10 @@ void setup() {
 
   //Timer for counting, ot for time keeping funtions
   InitTimersSafe();   
+
+  
+//Uncomment if button is connected
+//
         
   Serial.println("Setup complete");
 }
@@ -123,21 +154,24 @@ void playTone(int32_t frequency){
 }
 
 void playBeat(){
-  //reset elapsed_time
-  elapsed_time = 0;
+  //reset played_time
+  played_time = 0;
   
   if (current_tone > 0){
     //Tone is no rest
     
-    while (elapsed_time < play_duration){
+    while (played_time < play_duration){
       //Half time to send high puls and half time to send low puls
       int in_between_pause = current_tone /2;
       digitalWrite(headphone_pin, HIGH);
       delayMicroseconds(in_between_pause);
       digitalWrite(headphone_pin, LOW);
       delayMicroseconds(in_between_pause);
-      //Make sure elapsed_time is bigger than current_tone
-      elapsed_time += (current_tone);
+      
+      //Add this play time to total played time this tone
+      played_time += (current_tone);
+      
+      Serial.println(played_time);
     }
     
   } else {
@@ -158,9 +192,11 @@ void playMelody(int melody[], int beats[]){
     //Get beat
     current_tone = melody[i];
     current_beat = beats[i];
+   
     play_duration = current_beat * tempo;
     
-    //Play beat
+     
+    //Play tone
     playBeat();
     delayMicroseconds(pause);
     }
