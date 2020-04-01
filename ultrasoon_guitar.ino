@@ -76,11 +76,6 @@ void loop() {
     
 }
 
-//Plays a tone on a specific frequency
-void playTone(int32_t frequency){
-      pwmWrite(headphone_pin, frequency);
-      SetPinFrequency(headphone_pin, frequency);
-}
 
 //Calculate total time a ping needs to go back and forth
 void calculatePing(){
@@ -106,4 +101,10 @@ void printDistance(){
   Serial.print("Distance to target: \t\t");
   Serial.print(distance);
   Serial.println(" cm");
+}
+
+//Plays a tone on a specific frequency
+void playTone(int32_t frequency){
+      pwmWrite(headphone_pin, frequency);
+      SetPinFrequency(headphone_pin, frequency);
 }
