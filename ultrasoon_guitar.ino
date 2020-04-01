@@ -30,6 +30,23 @@ int32_t frequency_f = 352;
 int32_t frequency_g = 396; 
 int32_t frequency_a = 440; 
 int32_t frequency_b = 495; 
+int32_t frequency_rest = 0;
+
+//Initialize variable melody game
+int current_tone = 0;
+int current_beat = 0;
+long play_duration = 0;
+long elapsed_time = 0;
+
+long tempo = 10000;//overal tempo
+int pause = 1000;//pause between notes
+int rest_count = 100;//Variable to increase Rest lenght
+
+//Init melodies
+
+int medoly_one[] = {frequency_c, frequency_b, frequency_g, frequency_c, frequency_b, 
+  frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
+int beats_one[] = {16,16,16,8,8,16,32,16,16,16,8,8};
 
 void setup() {
   Serial.begin(9600);
@@ -44,7 +61,8 @@ void setup() {
 }
 
 void loop() {
-guitarGameTones();
+//guitarGameTones();
+guitarGameMusic();
 }
 
 
@@ -80,6 +98,47 @@ void playTone(int32_t frequency){
       SetPinFrequency(headphone_pin, frequency);
 }
 
+void playBeat(){
+  //reset elapsed_time
+  elapsed_time = 0;
+  
+  if (current_tone > 0){
+    //Tone is no rest
+    
+    while (elapsed_time < play_duration){
+      int in_between_pause = current_tone /2;
+      digitalWrite(headphone_pin, HIGH);
+      delayMicroseconds(in_between_pause);
+      digitalWrite(headphone_pin, LOW);
+      delayMicroseconds(in_between_pause);
+      elapsed_time += (current_tone);
+    }
+    
+  } else {
+    //tone is rest
+    
+      for (int j = 0; j < rest_count; j++){
+        delayMicroseconds(play_duration);
+      }
+   }
+}
+  
+void playMelody(int melody[], int beats[]){
+
+// Melody lenght for looping
+int max_count = sizeof(melody) /2;
+
+  for( int i = 0; i < max_count; i++){
+    current_tone = melody[i];
+    current_beat = beats[i];
+    play_duration = current_beat * tempo;
+    
+    playBeat();
+    delayMicroseconds(pause);
+    }
+  }
+
+//'Guitar' game with musical tones
 void guitarGameTones(){
   
   testPing();
@@ -106,9 +165,39 @@ void guitarGameTones(){
         playTone(frequency_a);
       }
      else{
-        playTone(0);
+      //0Hz sound (Quiet)
+        playTone(frequency_rest);
       }
-  
+
+  //Wait 100 ms before staring over so sound can play
   delay(100);
     
   }
+
+//'Guitar' game with melody
+void guitarGameMusic(){
+  testPing();
+  calculateDistance();
+  printDistance();
+
+//Every 15 cm diffrent melody
+     if (distance <=15) {
+       playMelody(medoly_one, beats_one);
+      } 
+//     else if (distance <=30){
+//       playMelody(medoly_one, beats_one);
+//      }
+//     else if (distance <=45){
+//       playMelody(medoly_one, beats_one);
+//      }
+//     else if (distance <=60){
+//       playMelody(medoly_one, beats_one);
+//      }
+     else{
+      //0Hz sound (Quiet)
+        playTone(frequency_rest);
+      }
+
+  //Wait 100 ms before staring over so sound can play
+  delay(100); 
+}
