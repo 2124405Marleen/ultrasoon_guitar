@@ -43,12 +43,11 @@ int pause = 1000;//pause between notes
 int rest_count = 100;//Variable to increase Rest lenght
 
 //Init melodies
-
-//Random melodie
 int melody_one[] = {frequency_c, frequency_b, frequency_g, frequency_c, frequency_b, 
   frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
 int beats_one[] = {16,16,16,8,8,16,32,16,16,16,8,8};
 
+//repeat with diffrent start note
 int melody_two[] = {frequency_g, frequency_b, frequency_g, frequency_c, frequency_b, 
   frequency_e, frequency_rest, frequency_c, frequency_c, frequency_g, frequency_a, frequency_c};
 int beats_two[] = {16,16,16,8,8,16,32,16,16,16,8,8};
@@ -68,34 +67,44 @@ void setup() {
   pinMode(echo_pin, INPUT);
   pinMode(trig_pin, OUTPUT);
   pinMode(headphone_pin, OUTPUT);
-  
-  InitTimersSafe();         //Not for time keeping funtions
+
+  //Timer for counting, ot for time keeping funtions
+  InitTimersSafe();   
+        
   Serial.println("Setup complete");
 }
 
 void loop() {
+  /*
+   * Two diffrent game modes. 
+   * (button broke so no button code anymore
+   */ 
 //guitarGameTones();
 guitarGameMusic();
 }
 
 
-//Send pulse to test time ping needs to go back and forth
+//Send pulse to test how many time ping needs to go back and forth
 void testPing(){
   digitalWrite(trig_pin, LOW);
   delayMicroseconds(2000);
   digitalWrite(trig_pin, HIGH);
   delayMicroseconds(15);
   digitalWrite(trig_pin, LOW);
- 
 }
 
 // Calculates the distance basted on Ping speed
 void calculateDistance(){
-  ping_time = pulseIn(echo_pin, HIGH);  // ping in microseconds
-  ping_time = ping_time / 1000000; //ping in seconds
-  ping_time = ping_time / 2; //Duration one way for ping
+  // ping in microseconds
+  ping_time = pulseIn(echo_pin, HIGH);  
+  //ping in seconds
+  ping_time = ping_time / 1000000; 
+  //Duration one way for ping
+  ping_time = ping_time / 2; 
+  //Distance = speed * time ping needs travaling one way
   distance_target = speed_sound * ping_time;
-  distance = distance_target * 100; //distance in cm
+  //Distance in cm
+  distance = distance_target * 100;
 }
 
 //Prints the distance in console
@@ -107,8 +116,10 @@ void printDistance(){
 
 //Plays a tone on a specific frequency
 void playTone(int32_t frequency){
-      pwmWrite(headphone_pin, frequency);
-      SetPinFrequency(headphone_pin, frequency);
+  //AnalogWrite for pwm
+  pwmWrite(headphone_pin, frequency);
+  //Send frequence to headphone
+  SetPinFrequency(headphone_pin, frequency);
 }
 
 void playBeat(){
@@ -119,17 +130,18 @@ void playBeat(){
     //Tone is no rest
     
     while (elapsed_time < play_duration){
+      //Half time to send high puls and half time to send low puls
       int in_between_pause = current_tone /2;
       digitalWrite(headphone_pin, HIGH);
       delayMicroseconds(in_between_pause);
       digitalWrite(headphone_pin, LOW);
       delayMicroseconds(in_between_pause);
+      //Make sure elapsed_time is bigger than current_tone
       elapsed_time += (current_tone);
     }
     
   } else {
-    //tone is rest
-    
+    //tone is rest, so only a pause nessesary 
       for (int j = 0; j < rest_count; j++){
         delayMicroseconds(play_duration);
       }
@@ -138,14 +150,17 @@ void playBeat(){
   
 void playMelody(int melody[], int beats[]){
 
-// Melody lenght for looping
-int max_count = sizeof(melody) /2;
+  // Melody lenght for looping
+  int max_count = sizeof(melody) /2;
 
+  //Play tone by tone
   for( int i = 0; i < max_count; i++){
+    //Get beat
     current_tone = melody[i];
     current_beat = beats[i];
     play_duration = current_beat * tempo;
     
+    //Play beat
     playBeat();
     delayMicroseconds(pause);
     }
@@ -153,7 +168,7 @@ int max_count = sizeof(melody) /2;
 
 //'Guitar' game with musical tones
 void guitarGameTones(){
-  
+//Distance   
   testPing();
   calculateDistance();
   printDistance();
@@ -182,24 +197,23 @@ void guitarGameTones(){
         playTone(frequency_rest);
       }
 
-  //Wait 100 ms before staring over so sound can play
-  delay(10000);
-    
+  //Wait 10000 ms before staring over so sound can play
+  delay(10000); 
   }
 
 //'Guitar' game with melody
 void guitarGameMusic(){
+ //Distance
   testPing();
   calculateDistance();
   printDistance();
 
-//Every 15 cm diffrent melody
+//Every 15 cm diffrent melody. Silents by more than 60 cm away
      if (distance <=15) {
        playMelody(melody_one, beats_one);
       } 
      else if (distance <=30){
         playMelody(melody_two, beats_two);
-       
       }
      else if (distance <=45){
        playMelody(melody_three, beats_three);
